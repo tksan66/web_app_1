@@ -21,5 +21,6 @@ from api import views as api_views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path("app/", include("app.urls")),
-    path("api/", include(api_views.router.urls))
+    path("api/", include(api_views.router.urls)),
+    path('testapi/', include("testapi.urls")),
 ]

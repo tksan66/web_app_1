@@ -40,16 +40,20 @@ INSTALLED_APPS = [
     "app",
     "api.apps.ApiConfig",
     "rest_framework",
+    "corsheaders",
+    "testapi"
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    #'corsheaders.middleware.CorsPostCsrfMiddleware',
 ]
 
 ROOT_URLCONF = 'backend.urls'
@@ -57,7 +61,7 @@ ROOT_URLCONF = 'backend.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': ["tamplates"],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -119,8 +123,17 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
 STATIC_URL = 'static/'
+STATICFILES_DIRS = [
+    '../django_react/react_app/static',
+]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000", # クライアントアプリのURL
+    "http://localhost:3001",
+]
+
