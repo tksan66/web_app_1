@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { GoPaperAirplane, GoDependabot, } from "react-icons/go";
 import { RiCriminalLine } from "react-icons/ri";
 import axios from 'axios'; 
@@ -9,28 +9,56 @@ interface Message {
   sender: 'user' | 'bot';
 }
 
-const ChatApp = () => {
+interface Conversation {
+  id: number;
+  message: Message[];
+}
+
+interface ChatAppProps {
+  selectedConversation?: Conversation;
+  onChathistory: (conversation: Conversation[]) => void;
+  onSetisloading : (isLoading: boolean) => void;
+  isLoading : boolean;
+}
+
+
+const ChatApp : React.FC<ChatAppProps> = ({selectedConversation, onChathistory, onSetisloading, isLoading}) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
-  const [isLoading, setIsLoading] = useState(false)
+
+  useEffect(() => {
+    if (selectedConversation) {
+      setMessages(selectedConversation.message);
+    } else {
+      setMessages([]);
+    }
+  }, [selectedConversation]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (inputValue.trim()) {
       setMessages((messages) => [...messages, { text: inputValue, sender: 'user' }]);
       setInputValue('');
-      setIsLoading(true);
+      onSetisloading(true);
       try {
         
-        const response = await axios.post("http://127.0.0.1:8000/testapi/", {message : inputValue});
+        const response = await axios.post("http://127.0.0.1:8000/api/testapi/", {message : inputValue});
         const botMessage = response.data.message;
+
+        const response_update = await axios.post("http://127.0.0.1:8000/api/updatedb/", 
+        {user_info: {"username" : "John", "usermessage": inputValue, "aimessage" : botMessage, "id" : selectedConversation?.id}});
+        // ここに会話履歴を更新するやつを書く
+        const res_chathistory = await axios.get("http://127.0.0.1:8000/api/getdb/");
+        const chathistory = res_chathistory.data.content;
+        onChathistory(chathistory);
+
         setMessages((messages) => [...messages, {text:botMessage, sender:"bot"}]);
 
         console.log(messages)
       } catch (error) {
         console.error("API error:" , error);
       } finally {
-        setIsLoading(false);
+        onSetisloading(false);
       }
     }
   };
@@ -65,7 +93,7 @@ const ChatApp = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className="flex-gorw bg-gray-700 text-white px-4 py-2 hover:bg-blue-600"
+              className="flex-gorw bg-gray-700 text-white px-4 py-2 "
             >
               {isLoading ? <Loading /> :  <GoPaperAirplane/>}
             </button>

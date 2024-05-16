@@ -28,8 +28,9 @@ class AddTestView(APIView):
         cmd = f"../llama.cpp/main -m '../llama.cpp/models/ELYZA-japanese-Llama-2-7b-instruct-q4_K_M.gguf' -n 256 -p '{prompt}' --temp 0"
         result = subprocess.run(["powershell.exe", "-Command", cmd], capture_output=True, text=True)
         res = result.stdout
+        print(res)
 
         match = re.search(r'\[/INST\]',res)
-        res_trim = res[match.end():-5]
+        res_trim = res[match.end():-4]
         
         return Response({"message": res_trim})

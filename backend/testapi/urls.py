@@ -10,5 +10,5 @@ from . import views
 # ]
 
 urlpatterns = [
-    path('', views.AddTestView.as_view(), name='add-test'),
+    path('testapi/', views.AddTestView.as_view(), name='add-test'),
 ]
