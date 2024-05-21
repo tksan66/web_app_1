@@ -14,15 +14,20 @@ interface Conversation {
   message: Message[];
 }
 
+interface User {
+  username: string;
+}
+
 interface ChatAppProps {
   selectedConversation?: Conversation;
   onChathistory: (conversation: Conversation[]) => void;
   onSetisloading : (isLoading: boolean) => void;
   isLoading : boolean;
+  username : User;
 }
 
 
-const ChatApp : React.FC<ChatAppProps> = ({selectedConversation, onChathistory, onSetisloading, isLoading}) => {
+const ChatApp : React.FC<ChatAppProps> = ({selectedConversation, onChathistory, onSetisloading, isLoading, username}) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
 
@@ -46,9 +51,9 @@ const ChatApp : React.FC<ChatAppProps> = ({selectedConversation, onChathistory, 
         const botMessage = response.data.message;
 
         const response_update = await axios.post("http://127.0.0.1:8000/api/updatedb/", 
-        {user_info: {"username" : "John", "usermessage": inputValue, "aimessage" : botMessage, "id" : selectedConversation?.id}});
+        {user_info: {"username" : username.username, "usermessage": inputValue, "aimessage" : botMessage, "id" : selectedConversation?.id ?? 0}});
         // ここに会話履歴を更新するやつを書く
-        const res_chathistory = await axios.get("http://127.0.0.1:8000/api/getdb/");
+        const res_chathistory = await axios.post("http://127.0.0.1:8000/api/getdb/", {user_info : username});
         const chathistory = res_chathistory.data.content;
         onChathistory(chathistory);
 

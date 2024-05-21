@@ -1,12 +1,11 @@
-from django.shortcuts import render
-import psycopg2
-import datetime
-
 # Create your views here.
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from .models import ChatMessage
 from .serializers import ChatMessageSerializer
+from django.shortcuts import render
+import psycopg2
+import datetime
 
 class UpdateDBView(APIView):
     def post(self, request):
@@ -30,10 +29,12 @@ class UpdateDBView(APIView):
         return Response({'status': 'success'})
 
 class GetHistoryView(APIView):
-    def get(self, request):
+    def post(self, request):
         conn = psycopg2.connect(database="testdb", user="tksan", password="6179")
         cur = conn.cursor()
-        cur.execute("SELECT * FROM chathistory WHERE username='John'")
+        user_info = request.data.get("user_info")
+        query = "SELECT * FROM chathistory WHERE username=%s"
+        cur.execute(query,(user_info["username"],))
         rows = cur.fetchall()
 
         group_dict = {}

@@ -1,5 +1,4 @@
 import React, {useState, useEffect} from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import ChatApp from './ChatApp';
 import ChatHistory from './ChatHistory'
 import LoginPage from './LoginPage';
@@ -13,6 +12,10 @@ interface Message {
 interface Conversation {
   id: number;
   message: Message[];
+}
+
+interface User {
+  username: string;
 }
 
 const App: React.FC = () => {
@@ -34,12 +37,14 @@ const App: React.FC = () => {
   const handleLogin = (loggedIn: boolean) => {
     setIsLoggedIn(loggedIn);
   };
+
+  const [Username, setloginUsername] = useState<User>({"username" : "admin"})
   
 
   useEffect(() => {
     const fetchChatHistory = async () => {
       try {
-        const res_chathistory = await axios.get("http://127.0.0.1:8000/api/getdb/");
+        const res_chathistory = await axios.post("http://127.0.0.1:8000/api/getdb/", {user_info : Username});
         const fetchedChathistory = res_chathistory.data.content;
         setchathistory(fetchedChathistory);
       } catch (error) {
@@ -47,8 +52,10 @@ const App: React.FC = () => {
       }
     };
 
-    fetchChatHistory();
-  }, []); // 空の依存配列を渡すことで、初回レンダリング時のみ実行されます
+    if (isLoggedIn) {
+      fetchChatHistory();
+    }
+  }, [isLoggedIn]); // isLoggedInが変更された際に実行されます
   console.log(chathistory)
 
   return (
@@ -70,12 +77,13 @@ const App: React.FC = () => {
               onChathistory={handlechathistory}
               onSetisloading = {setIsLoading}
               isLoading = {isLoading}
+              username = {Username}
             />
           </div>
         </div>
       </div>
       ) : (
-        <LoginPage onLogin={handleLogin} />
+        <LoginPage onLogin={handleLogin} onloginusername ={setloginUsername} />
       )}
     </div>
   );

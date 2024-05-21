@@ -1,13 +1,27 @@
 import React, { useState } from 'react';
 import axios from 'axios'; 
+import SignUpPopup from './SignUp';
+
+interface User {
+  username: string;
+}
 
 interface LoginProps {
   onLogin: (isLoggedIn: boolean) => void;
+  onloginusername : (Username : User) => void
 }
 
-const LoginPage: React.FC<LoginProps> = ({ onLogin }) => {
+// interface userData {
+//   name: string;
+//   password: string;
+// }
+
+
+
+const LoginPage: React.FC<LoginProps> = ({ onLogin , onloginusername }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [showSignUpPopup, setShowSignUpPopup] = useState(false);
 
   const handleLogin = async () => {
     try {
@@ -15,6 +29,7 @@ const LoginPage: React.FC<LoginProps> = ({ onLogin }) => {
       const status = response.data.status
       if (status === 'success') {
         onLogin(true);
+        onloginusername({"username" : username})
       } else {
         alert('Invalid username or password');
       }
@@ -25,8 +40,13 @@ const LoginPage: React.FC<LoginProps> = ({ onLogin }) => {
 
   };
 
+  const handleSignUpClose = () => {
+    setShowSignUpPopup(false);
+  };
+
+
   return (
-    <div className="flex justify-center items-center h-screen bg-black">
+    <div className="flex justify-center items-center h-screen bg-gray-500">
       <div className="bg-white p-8 rounded-lg shadow-md">
         <h2 className="text-2xl font-bold mb-4">Login</h2>
         <div className="mb-4">
@@ -60,8 +80,19 @@ const LoginPage: React.FC<LoginProps> = ({ onLogin }) => {
           >
             Login
           </button>
+          <a
+            href="#"
+            onClick={() => setShowSignUpPopup(true)}
+            className="text-blue-500 hover:text-blue-700 underline"
+          >
+            Sign Up
+          </a>
         </div>
-      </div>
+        </div>
+      <SignUpPopup
+        isOpen={showSignUpPopup}
+        onClose={handleSignUpClose}
+      />
     </div>
   );
 };
