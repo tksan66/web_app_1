@@ -6,12 +6,21 @@ from .serializers import ChatMessageSerializer
 from django.shortcuts import render
 import psycopg2
 import datetime
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+DATABASENAME = os.environ.get("DATABASENAME")
+DATABASEUSERNAME = os.environ.get("DATABASEUSERNAME")
+DATABASEPASSWORD = os.environ.get("DATABASEPASSWORD")
+
 
 class UpdateDBView(APIView):
     def post(self, request):
         user_info = request.data.get("user_info")
         print(user_info)
-        conn = psycopg2.connect(database="testdb", user="tksan", password="6179")
+        conn = psycopg2.connect(database=DATABASENAME, user=DATABASEUSERNAME, password=DATABASEPASSWORD)
         cur = conn.cursor()
         username = user_info["username"]
         timestamp = datetime.datetime.now()  # 現在の日時
@@ -30,7 +39,7 @@ class UpdateDBView(APIView):
 
 class GetHistoryView(APIView):
     def post(self, request):
-        conn = psycopg2.connect(database="testdb", user="tksan", password="6179")
+        conn = psycopg2.connect(database=DATABASENAME, user=DATABASEUSERNAME, password=DATABASEPASSWORD)
         cur = conn.cursor()
         user_info = request.data.get("user_info")
         query = "SELECT * FROM chathistory WHERE username=%s"
@@ -55,3 +64,19 @@ class GetHistoryView(APIView):
         cur.close()
         conn.close()
         return Response({'content': res_list})
+    
+class DeleteHistoryView(APIView):
+    def post(self, request):
+        conn = psycopg2.connect(database=DATABASENAME, user=DATABASEUSERNAME, password=DATABASEPASSWORD)
+        cur = conn.cursor()
+        username = request.data.get("username")
+        id = request.data.get("index")
+
+        delete_query = "DELETE FROM chathistory WHERE username=%s and id =%s;"
+        cur.execute(delete_query, (username, id))
+
+        conn.commit()
+        cur.close()
+        conn.close()
+
+        return Response({'status': "success"})

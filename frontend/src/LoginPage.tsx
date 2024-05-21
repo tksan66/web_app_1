@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios'; 
 import SignUpPopup from './SignUp';
+import { useNavigate } from 'react-router-dom';
 
 interface User {
   username: string;
@@ -22,14 +23,18 @@ const LoginPage: React.FC<LoginProps> = ({ onLogin , onloginusername }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showSignUpPopup, setShowSignUpPopup] = useState(false);
+  const navigate = useNavigate();
+  const API_ENDPOINT = process.env.REACT_APP_API_ENDPOINT;
 
   const handleLogin = async () => {
     try {
-      const response = await axios.post('http://127.0.0.1:8000/authentication/check/', {user_info: { username : username, password : password }});
+      const response = await axios.post(`${API_ENDPOINT}/authentication/check/`, {user_info: { username : username, password : password }});
       const status = response.data.status
+
       if (status === 'success') {
         onLogin(true);
-        onloginusername({"username" : username})
+        onloginusername({"username" : username});
+        navigate('/chat', { replace: true });
       } else {
         alert('Invalid username or password');
       }

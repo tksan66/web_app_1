@@ -5,10 +5,17 @@ import bcrypt
 import hashlib
 import os 
 from psycopg2.extensions import Binary
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Create your views here.
 from rest_framework.views import APIView
 from rest_framework.response import Response
+
+USERDATABASENAME = os.environ.get("USERDATABASENAME")
+DATABASEUSERNAME = os.environ.get("DATABASEUSERNAME")
+DATABASEPASSWORD = os.environ.get("DATABASEPASSWORD")
 
 def hash_password(password):
 
@@ -34,7 +41,7 @@ class authenticationView(APIView):
         user_name = user_info["username"]
         user_pass = user_info["password"]
 
-        conn = psycopg2.connect(database="userdb", user="tksan", password="6179")
+        conn = psycopg2.connect(database=USERDATABASENAME, user=DATABASEUSERNAME, password=DATABASEPASSWORD)
         cur = conn.cursor()
         cur.execute("SELECT * FROM usertable WHERE username = %s", (user_name,))
         rows = cur.fetchall()
@@ -55,7 +62,7 @@ class authenticationcreateView(APIView):
             user_info = request.data.get("user_info")
             user_name = user_info["username"]
             user_pass = user_info["password"]
-            conn = psycopg2.connect(database="userdb", user="tksan", password="6179")
+            conn = psycopg2.connect(database=USERDATABASENAME, user=DATABASEUSERNAME, password=DATABASEPASSWORD)
 
             cur = conn.cursor()
 

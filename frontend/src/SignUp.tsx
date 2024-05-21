@@ -9,10 +9,11 @@ interface SignupProps {
 const SignUpPopup: React.FC<SignupProps> = ({ isOpen, onClose }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const API_ENDPOINT = process.env.REACT_APP_API_ENDPOINT;
 
   const handleSubmit = async () => {
     try {
-      const response = await axios.post('http://127.0.0.1:8000/authentication/create/', {user_info: { username : username, password : password }});
+      const response = await axios.post(`${API_ENDPOINT}/authentication/create/`, {user_info: { username : username, password : password }});
       const status = response.data.status
       if (status === 'success') {
         setUsername("")
